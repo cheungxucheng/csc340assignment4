@@ -5,6 +5,17 @@
 // TO DO: implement the recursive series function
 //      Hint: it should return a long long (integers)
 
+long long seriesRecursive(int n) {
+    if (n == 0) {
+        return 0;
+    }
+    else if (n == 1 || n == 2) {
+        return 1;
+    }
+    else {
+        return seriesRecursive(n-1) + 2 * seriesRecursive(n-2) + 4 * seriesRecursive(n-3);
+    }
+}
 
 int main(int argc, char* argv[]) {
     // Read n from command line argument
