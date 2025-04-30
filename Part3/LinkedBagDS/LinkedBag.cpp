@@ -17,26 +17,147 @@ void LinkedBag<ItemType>::sort(int method){
 	
 	if (method == 0){
 		// update function call if you change the prototype. 
-		mergeSort();
+		mergeSort(headPtr);
 	}else{
 		// for EXTRA CREDIT, update function call if you change the prototype.
 		// If you do NOT implement quickSort, NO action needed here
-		quickSort(); 
+		quickSort(headPtr); 
 	}
 }
 
 //TO DO: implement merge sort and change its prototype if you need to.
+
+// get middle of list
 template<class ItemType>
-void LinkedBag<ItemType>::mergeSort(){
+Node<ItemType>* LinkedBag<ItemType>::findMiddle(Node<ItemType>* head) {
+	Node<ItemType>* slow = head;
+	Node<ItemType>* fast = head;
 
+	// slow moves half as fast as fast
+	while (fast != nullptr && fast->getNext() != nullptr && fast->getNext()->getNext() != nullptr) {
+		slow = slow->getNext();
+		fast = fast->getNext()->getNext();
+	}
 
+	return slow;
+}
+
+template<class ItemType>
+Node<ItemType>* LinkedBag<ItemType>::mergeLists(Node<ItemType>* left, Node<ItemType>* right) {
+	// base cases
+	if (left == nullptr) {
+		return right;
+	}
+
+	if (right == nullptr) {
+		return left;
+	}
+
+	// add one
+	if (left->getItem() < right->getItem()) {
+		left->setNext(mergeLists(left->getNext(), right));
+		return left;
+	} else {
+		right->setNext(mergeLists(left, right->getNext()));
+		return right;
+	}
+}
+
+template<class ItemType>
+Node<ItemType>* LinkedBag<ItemType>::mergeSort(Node<ItemType>* head) {
+	// Base case (0 or 1 elements)
+	if (head == nullptr || head->getNext() == nullptr) {
+		return head;
+	}
+
+	Node<ItemType>* mid = findMiddle(head);
+
+	// split list in two at midpoint
+	Node<ItemType>* leftHead = head;
+	Node<ItemType>* rightHead = mid->getNext();
+	mid->setNext(nullptr);
+
+	// recurse
+	leftHead = mergeSort(leftHead);
+	rightHead = mergeSort(rightHead);
+
+	// merge
+	return mergeLists(leftHead, rightHead);
 }
 
 //Extra Credit -- TO DO: implement quick sort and change its prototype 
 //                       if you need to.
 template<class ItemType>
-void LinkedBag<ItemType>::quickSort(){
-	
+Node<ItemType>* LinkedBag<ItemType>::quickSort(Node<ItemType>* head) {
+	// Base case (0 or 1 elements)
+	if (head == nullptr || head->getNext() == nullptr) {
+		return head;
+	}
+
+	// find last node
+	Node<ItemType>* pivot = head;
+	while (pivot->getNext() != nullptr) {
+		pivot = pivot->getNext();
+	}
+
+	// don't know if the current head is less than or greater than the pivot,
+	// so need to choose a new head
+	Node<ItemType>* newHead = nullptr;
+
+	// partition list
+	Node<ItemType>* cur = head;
+	Node<ItemType>* prev = nullptr;
+	Node<ItemType>* end = pivot;
+	while (cur != pivot) {
+		if (cur->getItem() < pivot->getItem()) {
+			if (newHead == nullptr) {
+				newHead = cur;
+			}
+
+			prev = cur;
+			cur = cur->getNext();
+		} else {
+			// remove cur from list
+			if (prev != nullptr) {
+				prev->setNext(cur->getNext());
+			}
+
+			Node<ItemType>* next = cur->getNext();
+
+			// add to end
+			cur->setNext(nullptr);
+			end->setNext(cur);
+			end = cur;
+			cur = next;
+		}
+	}
+
+	// case where everything was bigger than the pivot
+	if (newHead == nullptr) {
+		newHead = pivot;
+	}
+
+	// list is now newHead to end
+	// split list before pivot
+	Node<ItemType>* split = newHead;
+	while (split->getNext() != pivot) {
+		split = split->getNext();
+	}
+
+	split->setNext(nullptr);
+
+	// sort both sides
+	newHead = quickSort(newHead);
+	pivot = quickSort(pivot);
+
+	// connect lists again
+	cur = newHead;
+	while (cur->getNext() != nullptr) {
+		cur = cur->getNext();
+	}
+	cur->setNext(pivot);
+
+	return newHead;
 }
 // --------------------------------------------------------------
 
